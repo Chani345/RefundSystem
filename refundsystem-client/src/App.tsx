@@ -1,11 +1,15 @@
 import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import RefundForm from "./components/RefundForm";
-import RefundList from "./components/RefundList";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import { useNavigate, useLocation } from "react-router-dom";
+import UserPage from "./pages/UserPage";
+import AdminPage from "./pages/AdminPage";
 
 const theme = createTheme({
   palette: {
@@ -20,26 +24,48 @@ const theme = createTheme({
   },
 });
 
-function App() {
-  const [refresh, setRefresh] = React.useState(false);
+function Navigation() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  return (
+    <AppBar position="static" elevation={2}>
+      <Toolbar>
+        <Box sx={{ flexGrow: 1, display: "flex", gap: 2 }}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/")}
+            variant={location.pathname === "/" ? "outlined" : "text"}
+          >
+            משתמש
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/admin")}
+            variant={location.pathname === "/admin" ? "outlined" : "text"}
+          >
+            מנהל
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+}
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="md">
-        <Box sx={{ my: 6, textAlign: "center" }}>
-          <Typography variant="h3" color="primary" fontWeight="bold" gutterBottom>
-            מערכת החזרות - משרד הביטחון
-          </Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            שלח בקשת החזר, עקוב אחרי סטטוס, והכל במקום אחד.
-          </Typography>
-        </Box>
-        <RefundForm onSuccess={() => setRefresh(r => !r)} />
-        <Box sx={{ my: 4 }}>
-          <RefundList refresh={refresh} />
-        </Box>
-      </Container>
+      <BrowserRouter>
+        <Navigation />
+        <Container maxWidth="md">
+          <Routes>
+            <Route path="/" element={<UserPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Container>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
