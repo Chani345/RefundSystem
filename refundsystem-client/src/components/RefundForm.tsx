@@ -3,6 +3,7 @@ import { Box, Button, TextField, Paper, Typography, Alert, CircularProgress } fr
 import { refundService } from "../services/refundService";
 
 type Props = {
+  citizenId: string;
   onSuccess: () => void;
 };
 
@@ -12,7 +13,7 @@ const initialState = {
   reason: "",
 };
 
-export default function RefundForm({ onSuccess }: Props) {
+export default function RefundForm({ citizenId, onSuccess }: Props) {
   const [form, setForm] = React.useState(initialState);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
