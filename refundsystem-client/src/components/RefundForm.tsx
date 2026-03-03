@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, TextField, Paper, Typography, Alert, CircularProgress } from "@mui/material";
+import { refundService } from "../services/refundService";
 
 type Props = {
   onSuccess: () => void;
@@ -38,13 +39,7 @@ export default function RefundForm({ onSuccess }: Props) {
 
     setLoading(true);
     try {
-      // החלף לכתובת ה-API שלך
-      const res = await fetch("/api/refunds", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("שגיאה בשליחת הבקשה");
+      await refundService.create(form);
       setSuccess(true);
       setForm(initialState);
       onSuccess();
