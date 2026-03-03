@@ -1,14 +1,6 @@
 import React from "react";
 import { Paper, Typography, Table, TableHead, TableRow, TableCell, TableBody, Chip, CircularProgress, Box } from "@mui/material";
-
-type Refund = {
-  id: number;
-  name: string;
-  amount: number;
-  reason: string;
-  status: "ממתין" | "מאושר" | "נדחה";
-  createdAt: string;
-};
+import { refundService, Refund } from "../services/refundService";
 
 type Props = {
   refresh: boolean;
@@ -20,8 +12,7 @@ export default function RefundList({ refresh }: Props) {
 
   React.useEffect(() => {
     setLoading(true);
-    fetch("/api/refunds")
-      .then(res => res.json())
+    refundService.getAll()
       .then(setData)
       .catch(() => setData([]))
       .finally(() => setLoading(false));
