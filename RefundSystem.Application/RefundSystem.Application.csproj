@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RefundSystem.Domain\RefundSystem.Domain.csproj" />
+    <ProjectReference Include="..\RefundSystem.Infrastructure\RefundSystem.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
