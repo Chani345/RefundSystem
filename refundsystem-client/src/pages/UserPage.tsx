@@ -13,7 +13,7 @@ export default function UserPage() {
           מערכת החזרות - משרד הביטחון
         </Typography>
         <Typography variant="h6" color="text.secondary" gutterBottom>
-          שלח בקשת החזר, עקוב אחרי סטטוס, והכל במקום אחד.
+          שלח בקשת החזר, עקוב אחרי סטטוס, והכל במקום אחד
         </Typography>
       </Box>
       <RefundForm onSuccess={() => setRefresh(r => !r)} />
