@@ -12,15 +12,22 @@ import {
   Button,
   CircularProgress,
   Alert,
+  Card,
+  CardContent,
+  IconButton,
 } from "@mui/material";
-
+import InfoIcon from "@mui/icons-material/Info";
 import { refundService, Refund } from "../services/refundService";
+import RefundDetailsDialog from "../components/RefundDetailsDialog";
 
 export default function AdminPage() {
   const [data, setData] = React.useState<Refund[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [processing, setProcessing] = React.useState<number | null>(null);
+  const [budget, setBudget] = React.useState(50000);
+  const [selectedRefund, setSelectedRefund] = React.useState<Refund | null>(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const loadData = React.useCallback(async () => {
     try {
@@ -43,6 +50,14 @@ export default function AdminPage() {
     try {
       setProcessing(id);
       await refundService.updateStatus(id, status);
+      
+      if (status === "מאושר") {
+        const refund = data.find(r => r.id === id);
+        if (refund) {
+          setBudget(prev => prev - refund.amount);
+        }
+      }
+      
       await loadData();
     } catch (err: any) {
       setError(err.message);
@@ -52,6 +67,7 @@ export default function AdminPage() {
   };
 
   const pendingRequests = data.filter(r => r.status === "ממתין");
+  const approvedTotal = data.filter(r => r.status === "מאושר").reduce((sum, r) => sum + r.amount, 0);
 
   return (
     <Box>
@@ -69,6 +85,20 @@ export default function AdminPage() {
           {error}
         </Alert>
       )}
+
+      <Card sx={{ mb: 4, bgcolor: "primary.main", color: "white" }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            תקציב זמין
+          </Typography>
+          <Typography variant="h3" fontWeight="bold">
+            {budget.toLocaleString("he-IL")} ₪
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
+            סה"כ מאושר: {approvedTotal.toLocaleString("he-IL")} ₪
+          </Typography>
+        </CardContent>
+      </Card>
 
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -89,6 +119,7 @@ export default function AdminPage() {
               <TableRow>
                 <TableCell>מזהה</TableCell>
                 <TableCell>שם</TableCell>
+                <TableCell>ת.ז</TableCell>
                 <TableCell>סכום</TableCell>
                 <TableCell>סיבה</TableCell>
                 <TableCell>תאריך</TableCell>
@@ -100,11 +131,37 @@ export default function AdminPage() {
                 <TableRow key={refund.id}>
                   <TableCell>{refund.id}</TableCell>
                   <TableCell>{refund.name}</TableCell>
+                  <TableCell>123456789</TableCell>
                   <TableCell>{refund.amount} ₪</TableCell>
                   <TableCell>{refund.reason}</TableCell>
                   <TableCell>{new Date(refund.createdAt).toLocaleDateString("he-IL")}</TableCell>
                   <TableCell align="center">
-                    <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
+                    <Box sx={{ display: "flex", gap: 1, justifyContent: "center", alignItems: "center" }}>
+                      <IconButton
+                        size="small"
+                        color="info"
+                        onClick={() => {
+                          setSelectedRefund(refund);
+                          setDialogOpen(true);
+                        }}
+                      >
+                        <InfoIcon />
+                      </IconButton>
+                      <Button
+                        variant="outlined"
+                        color="info"
+                        size="small"
+                        onClick={async () => {
+                          const result = await refundService.calculateEligibility({
+                            name: refund.name,
+                            amount: refund.amount.toString(),
+                            reason: refund.reason
+                          });
+                          alert(`סכום זכאות מחושב: ${result.eligibleAmount} ₪`);
+                        }}
+                      >
+                        חשב זכאות
+                      </Button>
                       <Button
                         variant="contained"
                         color="success"
@@ -165,6 +222,12 @@ export default function AdminPage() {
           </TableBody>
         </Table>
       </Paper>
+
+      <RefundDetailsDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        refund={selectedRefund}
+      />
     </Box>
   );
 }

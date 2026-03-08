@@ -28,6 +28,14 @@ export const refundService = {
     return new Promise(resolve => setTimeout(() => resolve([...mockData]), 500));
   },
 
+  async calculateEligibility(data: CreateRefundDto): Promise<{ eligibleAmount: number }> {
+    // TODO: Replace with real API call when backend is ready
+    // Mock calculation - returns 80% of requested amount
+    return new Promise(resolve => 
+      setTimeout(() => resolve({ eligibleAmount: Math.floor(Number(data.amount) * 0.8) }), 800)
+    );
+  },
+
   async create(data: CreateRefundDto): Promise<Refund> {
     const newRefund: Refund = {
       id: mockData.length + 1,
